@@ -12,8 +12,12 @@ Saved/
 *.sdf
 .vsconfig
 
+# Visual Studio user files
+*.user
+
 # Rider
 .idea/
+*.DotSettings.user
 
 # Build
 Build/

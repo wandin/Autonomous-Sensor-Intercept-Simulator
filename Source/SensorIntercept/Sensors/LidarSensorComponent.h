@@ -63,14 +63,10 @@ private:
 
 	void TrackClusters();
 	void DrawTrackedObjects();
-
-	bool ComputeIntercept(const FVector& ShooterPos, const FVector& TargetPos, const FVector& TargetVelocity, float InProjectileSpeed, FVector& OutInterceptPoint);
-
-	void ComputeIntercepts();
 	
+	void ComputeIntercepts();
 	FColor GetDepthColor(float Distance) const;
 	
-
 	// Lidar
 	UPROPERTY(EditAnywhere, Category="Lidar")
 	float ScanRadius = 1500.0f;
@@ -136,7 +132,6 @@ private:
 
 
 	// Projectile
-
 	UPROPERTY(EditAnywhere, Category="Intercept")
 	float ProjectileSpeed = 1200.0f;
 };

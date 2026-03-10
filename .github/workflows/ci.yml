@@ -1,0 +1,21 @@
+﻿name: Unreal Automation
+
+on:
+  push:
+    branches: [ main ]
+    
+  pull_request:
+      branches: [ main ]
+      
+jobs:
+  
+  test:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        
+      - name: Run Unreal Tests
+        shell: powershell
+        run: |
+          ./Scripts/run_tests.ps1
