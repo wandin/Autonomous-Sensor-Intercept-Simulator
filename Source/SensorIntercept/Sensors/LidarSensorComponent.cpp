@@ -3,8 +3,9 @@
 
 #include "LidarSensorComponent.h"
 
-#include "ImaginaryBlueprintData.h"
-#include "SensorIntercept/Algorithms/InterceptSolver.h"
+#include "SensorIntercept/Algorithms/Cluster/ClusterUtils.h"
+#include "SensorIntercept/Algorithms/InterceptSolver/InterceptSolver.h"
+#include "SensorIntercept/Algorithms/Voxel/VoxelGrid.h"
 
 ULidarSensorComponent::ULidarSensorComponent()
 {
@@ -144,113 +145,16 @@ void ULidarSensorComponent::DrawPointCloud()
 
 void ULidarSensorComponent::ApplyVoxelFilter()
 {
-	TMap<FIntVector, FVector> VoxelMap;
+	TArray<FVector> Filtered;
 
-	for (const FVector& Point : MapPointCloud)
-	{
-		int32 X = FMath::FloorToInt(Point.X / VoxelSize);
-		int32 Y = FMath::FloorToInt(Point.Y / VoxelSize);
-		int32 Z = FMath::FloorToInt(Point.Z / VoxelSize);
+	FVoxelGrid::Filter(MapPointCloud, VoxelSize, Filtered);
 
-		FIntVector Key(X, Y, Z);
-
-		if (!VoxelMap.Contains(Key))
-		{
-			VoxelMap.Add(Key, Point);
-		}
-	}
-
-	MapPointCloud.Empty();
-	VoxelMap.GenerateValueArray(MapPointCloud);
+	MapPointCloud = MoveTemp(Filtered);
 }
 
 void ULidarSensorComponent::DetectClusters()
 {
-	Clusters.Empty();
-
-	TArray<bool> Visited;
-	Visited.Init(false, MapPointCloud.Num());
-
-	if (MapPointCloud.Num() == 0)
-	{
-		return;
-	}
-	
-	for (int32 i = 0; i < MapPointCloud.Num(); i++)
-	{
-		if (Visited[i] || MapPointCloud[i].Z < GroundHeightThreshold)
-		{
-			continue;
-		}
-
-		FLidarCluster Cluster;
-		TArray<int32> Stack;
-		Stack.Add(i);
-
-		while (Stack.Num() > 0)
-		{
-			int32 Index = Stack.Pop();
-
-			if (Visited[Index])
-			{
-				continue;
-			}
-
-			Visited[Index] = true;
-
-			const FVector& Point = MapPointCloud[Index];
-			if (Point.Z < GroundHeightThreshold)
-			{
-				continue;
-			}
-			Cluster.Points.Add(Point);
-
-			for (int32 j = 0; j < MapPointCloud.Num(); j++)
-			{
-				if (Visited[j])
-				{
-					continue;
-				}
-
-				const FVector& OtherPoint = MapPointCloud[j];
-				if (OtherPoint.Z < GroundHeightThreshold)
-				{
-					continue;
-				}
-				if (FVector::Dist(Point, OtherPoint) < ClusterDistance)
-				{
-					Stack.Add(j);
-				}
-			}
-		}
-
-		if (Cluster.Points.Num() >= MinClusterSize && Cluster.Points.Num() <= MaxClusterSize)
-		{
-			FVector Sum = FVector::ZeroVector;
-
-			FVector Min = Cluster.Points[0];
-			FVector Max = Cluster.Points[0];
-
-			for (const FVector& P : Cluster.Points)
-			{
-				Sum += P;
-
-				Min.X = FMath::Min(Min.X, P.X);
-				Min.Y = FMath::Min(Min.Y, P.Y);
-				Min.Z = FMath::Min(Min.Z, P.Z);
-
-				Max.X = FMath::Max(Max.X, P.X);
-				Max.Y = FMath::Max(Max.Y, P.Y);
-				Max.Z = FMath::Max(Max.Z, P.Z);
-			}
-
-			Cluster.Centroid = Sum / Cluster.Points.Num();
-			Cluster.MinBounds = Min;
-			Cluster.MaxBounds = Max;
-
-			Clusters.Add(Cluster);
-		}
-	}
+	FClusterUtils::DetectClusters(MapPointCloud, ClusterDistance, MinClusterSize, MaxClusterSize, GroundHeightThreshold, Clusters);
 }
 
 void ULidarSensorComponent::DrawClusters()

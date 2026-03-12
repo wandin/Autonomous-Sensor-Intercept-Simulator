@@ -1,5 +1,5 @@
 ﻿#include "Misc/AutomationTest.h"
-#include "SensorIntercept/Algorithms/InterceptSolver.h"
+#include "SensorIntercept/Algorithms/InterceptSolver/InterceptSolver.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FInterceptSolverTest,

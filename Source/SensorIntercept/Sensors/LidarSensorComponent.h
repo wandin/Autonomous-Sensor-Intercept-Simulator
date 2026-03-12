@@ -4,20 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "SensorIntercept/Algorithms/Cluster/ClusterTypes.h"
 #include "LidarSensorComponent.generated.h"
-
-
-USTRUCT()
-struct FLidarCluster
-{
-	GENERATED_BODY()
-
-	TArray<FVector> Points;
-
-	FVector Centroid = FVector::ZeroVector;
-	FVector MinBounds = FVector::ZeroVector;
-	FVector MaxBounds = FVector::ZeroVector;
-};
 
 USTRUCT()
 struct FTrackedObject
