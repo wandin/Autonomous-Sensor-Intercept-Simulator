@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "SensorIntercept/Algorithms/Cluster/ClusterTypes.h"
+#include "SensorIntercept/Algorithms/KalmanFilter/KalmanFilter.h"
 #include "LidarSensorComponent.generated.h"
 
 USTRUCT()
@@ -21,6 +22,8 @@ struct FTrackedObject
 
 	FVector BoundsMin;
 	FVector BoundsMax;
+
+	FKalmanFilter Filter;
 };
 
 UCLASS(ClassGroup=(Sensors), meta=(BlueprintSpawnableComponent))

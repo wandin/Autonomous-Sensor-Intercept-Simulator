@@ -185,15 +185,15 @@ void ULidarSensorComponent::TrackClusters()
 		FVector Position = Cluster.Centroid;
 
 		FTrackedObject* BestMatch = nullptr;
-		float BestDistance = TrackingDistanceThreshold;
+		float BestDistanceSq = TrackingDistanceThreshold * TrackingDistanceThreshold;
 
 		for (FTrackedObject& Object : TrackedObjects)
 		{
-			float Distance = FVector::Dist(Object.Position, Position);
+			float DistanceSq = FVector::DistSquared(Object.Position, Position);
 
-			if (Distance < BestDistance)
+			if (DistanceSq < BestDistanceSq)
 			{
-				BestDistance = Distance;
+				BestDistanceSq = DistanceSq;
 				BestMatch = &Object;
 			}
 		}
@@ -202,22 +202,27 @@ void ULidarSensorComponent::TrackClusters()
 		{
 			float DeltaTime = CurrentTime - BestMatch->LastSeenTime;
 
-			if (DeltaTime > KINDA_SMALL_NUMBER)
+			if (DeltaTime > 0.0001f)
 			{
-				FVector NewVelocity = (Position - BestMatch->Position) / DeltaTime;
-				BestMatch->Velocity = NewVelocity;
+				BestMatch->Filter.Predict(DeltaTime);
 			}
+			BestMatch->Filter.Update(Position);
 
-			BestMatch->Position = Position;
+			BestMatch->Position = BestMatch->Filter.GetPosition();
+			BestMatch->Velocity = BestMatch->Filter.GetVelocity();
+			
 			BestMatch->BoundsMin = Cluster.MinBounds;
 			BestMatch->BoundsMax = Cluster.MaxBounds;
+			
 			BestMatch->LastSeenTime = CurrentTime;
 		}
 		else
 		{
 			FTrackedObject NewObject;
 			NewObject.Id = NextObjectId++;
+			NewObject.Filter.Initialize(Position);
 			NewObject.Position = Position;
+			NewObject.Velocity = FVector::ZeroVector;
 			NewObject.BoundsMin = Cluster.MinBounds;
 			NewObject.BoundsMax = Cluster.MaxBounds;
 			NewObject.LastSeenTime = CurrentTime;
