@@ -246,12 +246,27 @@ void ULidarSensorComponent::DrawTrackedObjects()
 	{
 		return;
 	}
+
 	for (const FTrackedObject& Object : TrackedObjects)
 	{
 		FVector Start = Object.Position;
 		FVector End = Start + Object.Velocity * 0.5f;
 
 		DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 0.0f, 0, 3.0f);
+
+		// Prediction trajetory
+		float PredictionStep = 0.2f;
+
+		FVector Prev = Object.Position;
+
+		for (float t = PredictionStep; t <= PredictionTime; t += PredictionStep)
+		{
+			FVector Predicted = Object.Position + Object.Velocity * t;
+
+			DrawDebugLine(GetWorld(), Prev, Predicted, FColor::Cyan, false, 0.0f, 0, 1.5f);
+
+			Prev = Predicted;
+		}
 	}
 }
 

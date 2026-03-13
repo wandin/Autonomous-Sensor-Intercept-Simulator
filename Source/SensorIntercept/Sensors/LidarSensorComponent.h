@@ -125,4 +125,7 @@ private:
 	// Projectile
 	UPROPERTY(EditAnywhere, Category="Intercept")
 	float ProjectileSpeed = 1200.0f;
+
+	UPROPERTY(EditAnywhere, Category="Tracking", meta=(Units="s"))
+	float PredictionTime = 1.0f;
 };
