@@ -189,7 +189,15 @@ void ULidarSensorComponent::TrackClusters()
 
 		for (FTrackedObject& Object : TrackedObjects)
 		{
-			float DistanceSq = FVector::DistSquared(Object.Position, Position);
+			float dt = CurrentTime - Object.LastSeenTime;
+			FVector PredictedPosition = Object.Position;
+
+			if (dt > 0.0f)
+			{
+				PredictedPosition += Object.Velocity * dt;
+			}
+
+			float DistanceSq = FVector::DistSquared(PredictedPosition, Position);
 
 			if (DistanceSq < BestDistanceSq)
 			{

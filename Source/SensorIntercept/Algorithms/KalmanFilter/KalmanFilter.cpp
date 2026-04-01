@@ -23,11 +23,12 @@ void FKalmanFilter::Update(const FVector& Measurement)
 		return;
 	}
 	FVector Innovation  = Measurement - Position;
-
-	float Gain = 0.5f;
-
-	Position += Gain * Innovation;
-	Velocity += Gain * Innovation;
+	
+	float PositionGain = 0.6f;
+	float VelocityGain = 0.2f;
+	
+	Position += PositionGain * Innovation;
+	Velocity += VelocityGain * Innovation;
 }
 
 FVector FKalmanFilter::GetPosition() const

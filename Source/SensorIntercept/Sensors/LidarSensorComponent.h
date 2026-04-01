@@ -111,7 +111,6 @@ private:
 	UPROPERTY()
 	TArray<FLidarCluster> Clusters;
 
-
 	// Tracked objects
 	UPROPERTY()
 	TArray<FTrackedObject> TrackedObjects;
@@ -120,7 +119,6 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="Tracking", meta=(Units="cm"))
 	float TrackingDistanceThreshold = 100.0f;
-
 
 	// Projectile
 	UPROPERTY(EditAnywhere, Category="Intercept")
